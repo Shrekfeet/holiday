@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="theme-color" content="#76b729">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#76b729" />
   <title>Holiday & Absence Portal</title>
 
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Domine:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- FullCalendar -->
+  <link href="https://fonts.googleapis.com/css2?family=Domine:wght@400;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 
   <style>
@@ -18,9 +15,7 @@
       --green-600:#54851c;
       --green-700:#406516;
       --mint:#eaf6db;
-      --brown:#784e2f;
       --red:#800101;
-      --lightred:#ff9191;
       --blue:#2563eb;
       --purple:#7c3aed;
       --orange:#f97316;
@@ -48,7 +43,7 @@
       }
     }
 
-    html,body{height:100%}
+    html,body{height:100%;}
     body{
       margin:0;
       font-family:'Domine',serif;
@@ -93,17 +88,8 @@
       font-size:14px;
     }
 
-    .grid{
-      display:grid;
-      gap:18px;
-    }
-
-    @media (min-width:920px){
-      .grid--portal{
-        grid-template-columns:420px 1fr;
-        align-items:start;
-      }
-    }
+    .grid{display:grid; gap:18px;}
+    @media (min-width:920px){.grid--portal{grid-template-columns:420px 1fr; align-items:start;}}
 
     .card{
       background:var(--surface);
@@ -116,7 +102,6 @@
     .row{display:grid; gap:12px;}
     .row--split{grid-template-columns:1fr; gap:12px;}
     @media (min-width:640px){.row--split{grid-template-columns:1fr 1fr;}}
-    .row > *{min-width:0;}
 
     label{
       font-weight:700;
@@ -138,30 +123,11 @@
       border:1px solid var(--border);
       border-radius:12px;
       box-sizing:border-box;
-      transition:border-color .2s, box-shadow .2s, background .2s;
-      -webkit-tap-highlight-color:transparent;
     }
 
     input, select{height:50px;}
     textarea{min-height:96px; resize:vertical;}
-
-    input:focus, select:focus, textarea:focus{
-      outline:none;
-      border-color:var(--green);
-      box-shadow:0 0 0 3px rgba(118,183,41,.25);
-      background:#fff;
-    }
-
-    input[type="date"]{
-      appearance:none;
-      -webkit-appearance:none;
-      width:100%;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    input[type="date"]::-webkit-date-and-time-value{text-align:left;}
-    input[type="date"]::-webkit-calendar-picker-indicator{cursor:pointer;}
+    input:focus, select:focus, textarea:focus{outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(118,183,41,.25); background:#fff;}
 
     .btn{
       margin-top:16px;
@@ -174,115 +140,36 @@
       border-radius:14px;
       width:100%;
       cursor:pointer;
-      transition:transform .05s ease, filter .2s, background .2s;
       box-shadow:var(--shadow-soft);
     }
-
     .btn:hover{background:var(--green-600);}
-    .btn:active{transform:scale(.99);}
     .btn[disabled]{opacity:.55; cursor:not-allowed;}
 
-    .msg{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:12px;
-      font-size:14px;
-      border:1px solid var(--border);
-      background:#fff;
-    }
-    .msg--warn{background:var(--lightred); border-color:var(--red); color:var(--red);}
+    .msg{margin-top:14px; padding:12px 14px; border-radius:12px; font-size:14px; border:1px solid var(--border); background:#fff;}
+    .msg--warn{background:#ff9191; border-color:var(--red); color:var(--red);}
     .msg--error{background:#fde7e7; border-color:#ffb4b4; color:#7f1d1d;}
     .msg--ok{background:#e6f6ea; border-color:#a9e1bc; color:#0f5132;}
 
     .footer-note{text-align:center; color:var(--muted); margin-top:16px; font-size:12px;}
 
-    .balance-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:10px;
-      margin-bottom:14px;
-    }
+    .balance-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-bottom:14px;}
+    .balance-card{border:1px solid var(--border); background:var(--field); border-radius:12px; padding:12px; box-shadow:var(--shadow-soft);}
+    .balance-card span{display:block; font-size:12px; color:var(--muted); margin-bottom:5px;}
+    .balance-card strong{font-size:22px; color:var(--green-700);}
 
-    .balance-card{
-      border:1px solid var(--border);
-      background:var(--field);
-      border-radius:12px;
-      padding:12px;
-      box-shadow:var(--shadow-soft);
-    }
+    .calendar-toolbar{display:grid; grid-template-columns:1fr; gap:10px; margin-bottom:12px;}
+    @media (min-width:640px){.calendar-toolbar{grid-template-columns:1fr 1fr;}}
+    #calendar{background:var(--surface); border-radius:12px; overflow:hidden;}
 
-    .balance-card span{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:5px;
-    }
-
-    .balance-card strong{
-      font-size:22px;
-      color:var(--green-700);
-    }
-
-    .calendar-toolbar{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-      margin-bottom:12px;
-    }
-
-    @media (min-width:640px){
-      .calendar-toolbar{
-        grid-template-columns:1fr 1fr;
-      }
-    }
-
-    #calendar{
-      background:var(--surface);
-      border-radius:12px;
-      overflow:hidden;
-    }
-
-    .legend{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:12px;
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .legend span{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-
-    .dot{
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      display:inline-block;
-      background:var(--green);
-    }
-
+    .legend{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; font-size:12px; color:var(--muted);}
+    .legend span{display:inline-flex; align-items:center; gap:6px;}
+    .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
     .dot--annual{background:var(--blue);}
     .dot--toil{background:var(--purple);}
     .dot--sick{background:var(--red);}
     .dot--other{background:var(--orange);}
 
-    .privacy-note{
-      margin-top:12px;
-      padding:12px 14px;
-      border-radius:12px;
-      background:var(--mint);
-      color:var(--green-700);
-      font-size:13px;
-      line-height:1.45;
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      *{animation:none!important; transition:none!important}
-    }
+    .privacy-note{margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--mint); color:var(--green-700); font-size:13px; line-height:1.45;}
   </style>
 </head>
 <body>
@@ -292,18 +179,12 @@
     <p class="subtle">Check team availability, then submit holiday, TOIL, or absence requests.</p>
 
     <div class="grid grid--portal">
-      <section class="card" aria-labelledby="requestHeading">
-        <h2 id="requestHeading">Submit a request</h2>
+      <section class="card">
+        <h2>Submit a request</h2>
 
         <div class="balance-grid" aria-live="polite">
-          <div class="balance-card">
-            <span>Annual leave remaining</span>
-            <strong id="annualRemaining">—</strong>
-          </div>
-          <div class="balance-card">
-            <span>TOIL balance</span>
-            <strong id="toilRemaining">—</strong>
-          </div>
+          <div class="balance-card"><span>Annual leave remaining</span><strong id="annualRemaining">—</strong></div>
+          <div class="balance-card"><span>TOIL balance</span><strong id="toilRemaining">—</strong></div>
         </div>
 
         <form id="leaveForm" novalidate>
@@ -313,7 +194,7 @@
               <select id="technician" name="technician" required>
                 <option value="">-- Select your name --</option>
               </select>
-              <div class="help">Required. Selecting your name will automatically fill in your email.</div>
+              <div class="help">Selecting your name automatically includes your email behind the scenes.</div>
             </div>
 
             <input id="email" name="email" type="hidden" required />
@@ -371,14 +252,12 @@
         </form>
       </section>
 
-      <section class="card" aria-labelledby="calendarHeading">
-        <h2 id="calendarHeading">Team Leave Calendar</h2>
+      <section class="card">
+        <h2>Team Leave Calendar</h2>
         <div class="calendar-toolbar">
           <div>
             <label for="teamFilter">Filter by team</label>
-            <select id="teamFilter">
-              <option value="all">All teams</option>
-            </select>
+            <select id="teamFilter"><option value="all">All teams</option></select>
           </div>
           <div>
             <label for="typeFilter">Filter by type</label>
@@ -397,7 +276,7 @@
 
         <div id="calendar"></div>
 
-        <div class="legend" aria-label="Calendar legend">
+        <div class="legend">
           <span><i class="dot dot--annual"></i> Annual Leave</span>
           <span><i class="dot dot--toil"></i> TOIL</span>
           <span><i class="dot dot--sick"></i> Sick Leave</span>
@@ -405,7 +284,7 @@
         </div>
 
         <div class="privacy-note">
-          Calendar should be fed from a safe public/source board only: name, team, leave type, dates, and status. Do not expose private HR notes or medical details here.
+          This calendar should only show safe public fields: name, team, leave type, dates, and approval status.
         </div>
       </section>
     </div>
@@ -413,27 +292,14 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', function(){
-      // Replace this list with your actual technician data.
-      // Later, this can be loaded from Make.com, monday.com, or a protected Google Sheet instead.
       const technicians = [
         { name: 'Alex Brown', email: 'alex@company.com', team: 'Workshop' },
         { name: 'Jamie Smith', email: 'jamie@company.com', team: 'Installations' },
         { name: 'Morgan Lee', email: 'morgan@company.com', team: 'Workshop' }
       ];
 
-      // Replace these with your live Make.com URLs.
-      const submitWebhookURL = 'https://hook.eu2.make.com/1g9bupgr66tiw5bejf7jok99hk873in7';
-
-      // This endpoint should return public-safe approved/pending leave events only.
-      // Recommended Make response shape:
-      // [
-      //   { "name":"Alex Brown", "team":"Workshop", "type":"Annual Leave", "start":"2026-06-01", "end":"2026-06-05", "status":"Approved" }
-      // ]
-      const calendarFeedURL = 'https://hook.eu2.make.com/qrixvwo15cjwnje1hccsfarn8yfzn3qx';
-
-      // Optional endpoint to return a technician balance by email/name.
-      // Recommended Make response shape:
-      // { "annualRemaining": 14.5, "toilRemaining": "6 hrs" }
+      const submitWebhookURL = 'https://hook.eu2.make.com/YOUR_LEAVE_REQUEST_WEBHOOK';
+      const calendarFeedURL = 'https://hook.eu2.make.com/YOUR_PUBLIC_CALENDAR_FEED_WEBHOOK';
       const balanceLookupURL = 'https://hook.eu2.make.com/YOUR_BALANCE_LOOKUP_WEBHOOK';
 
       const $ = (sel, root=document) => root.querySelector(sel);
@@ -482,7 +348,6 @@
 
         const start = new Date(`${startDateInput.value}T00:00:00`);
         const end = new Date(`${endDateInput.value}T00:00:00`);
-
         if (end < start) {
           workingDaysInput.value = '';
           return 0;
@@ -502,6 +367,16 @@
 
         workingDaysInput.value = count || '';
         return count;
+      };
+
+      const toggleSubmitEnabled = () => {
+        const nameOk = technicianInput.value.trim().length > 0;
+        const emailOk = emailInput.value.trim().length > 0;
+        const typeOk = leaveTypeInput.value.length > 0;
+        const startOk = Boolean(startDateInput.value);
+        const endOk = Boolean(endDateInput.value);
+        const days = calculateWorkingDays();
+        submitBtn.disabled = !(nameOk && emailOk && typeOk && startOk && endOk && days > 0);
       };
 
       const populateTechnicianDropdown = () => {
@@ -524,17 +399,6 @@
         toggleSubmitEnabled();
       };
 
-      const toggleSubmitEnabled = () => {
-        const nameOk = technicianInput.value.trim().length > 0;
-        const emailOk = emailInput.value.trim().length > 0;
-        const typeOk = leaveTypeInput.value.length > 0;
-        const startOk = Boolean(startDateInput.value);
-        const endOk = Boolean(endDateInput.value);
-        const days = calculateWorkingDays();
-
-        submitBtn.disabled = !(nameOk && emailOk && typeOk && startOk && endOk && days > 0);
-      };
-
       const eventColour = (type) => {
         if (type === 'Annual Leave') return '#2563eb';
         if (type === 'TOIL') return '#7c3aed';
@@ -545,7 +409,6 @@
       const normaliseEvent = (event) => ({
         title: `${event.name} — ${event.type}`,
         start: event.start,
-        // FullCalendar treats all-day end dates as exclusive, so add one day.
         end: event.end ? addDays(event.end, 1) : undefined,
         allDay: true,
         backgroundColor: eventColour(event.type),
@@ -558,21 +421,8 @@
         }
       });
 
-      const applyCalendarFilters = () => {
-        const selectedTeam = teamFilter.value;
-        const selectedType = typeFilter.value;
-
-        const filtered = allEvents.filter(event => {
-          const teamOk = selectedTeam === 'all' || event.team === selectedTeam;
-          const typeOk = selectedType === 'all' || event.type === selectedType;
-          return teamOk && typeOk;
-        });
-
-        calendar.removeAllEvents();
-        calendar.addEventSource(filtered.map(normaliseEvent));
-      };
-
       const populateTeamFilter = (events) => {
+        teamFilter.innerHTML = '<option value="all">All teams</option>';
         const teams = [...new Set(events.map(event => event.team).filter(Boolean))].sort();
         teams.forEach(team => {
           const option = document.createElement('option');
@@ -580,6 +430,18 @@
           option.textContent = team;
           teamFilter.appendChild(option);
         });
+      };
+
+      const applyCalendarFilters = () => {
+        const selectedTeam = teamFilter.value;
+        const selectedType = typeFilter.value;
+        const filtered = allEvents.filter(event => {
+          const teamOk = selectedTeam === 'all' || event.team === selectedTeam;
+          const typeOk = selectedType === 'all' || event.type === selectedType;
+          return teamOk && typeOk;
+        });
+        calendar.removeAllEvents();
+        calendar.addEventSource(filtered.map(normaliseEvent));
       };
 
       const loadCalendar = async () => {
@@ -595,7 +457,10 @@
           },
           eventDidMount: (info) => {
             const props = info.event.extendedProps;
-            info.el.title = `${props.name}\n${props.type}\n${props.team}\n${props.status}`;
+            info.el.title = `${props.name}
+${props.type}
+${props.team}
+${props.status}`;
           }
         });
         calendar.render();
@@ -610,7 +475,9 @@
         } catch (error) {
           console.error('Calendar feed failed:', error);
           allEvents = [];
-          alert('Calendar feed failed to load. Check the browser console for details.');
+          populateTeamFilter(allEvents);
+          applyCalendarFilters();
+          alert('Calendar feed failed to load. Open the browser console for details.');
         }
       };
 
@@ -618,6 +485,8 @@
         const name = technicianInput.value.trim();
         const email = emailInput.value.trim();
         if (!name && !email) return;
+
+        if (balanceLookupURL.includes('YOUR_BALANCE_LOOKUP_WEBHOOK')) return;
 
         try {
           const url = `${balanceLookupURL}?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
@@ -627,13 +496,12 @@
           annualRemaining.textContent = balance.annualRemaining ?? '—';
           toilRemaining.textContent = balance.toilRemaining ?? '—';
         } catch (error) {
-          // Keep quiet for now: balance lookup is nice-to-have, not a submission blocker.
           annualRemaining.textContent = '—';
           toilRemaining.textContent = '—';
         }
       };
 
-      [technicianInput, emailInput, leaveTypeInput, startDateInput, endDateInput, durationTypeInput].forEach(input => {
+      [leaveTypeInput, startDateInput, endDateInput, durationTypeInput].forEach(input => {
         input.addEventListener('input', toggleSubmitEnabled);
         input.addEventListener('change', toggleSubmitEnabled);
       });
@@ -654,7 +522,6 @@
         showMsg(formMsg, '', '');
         submitBtn.disabled = true;
 
-        const workingDays = calculateWorkingDays();
         const selectedTechnician = technicianInput.selectedOptions[0];
         const payload = {
           technician: technicianInput.value.trim(),
@@ -664,7 +531,7 @@
           startDate: startDateInput.value,
           endDate: endDateInput.value,
           durationType: durationTypeInput.value,
-          workingDays,
+          workingDays: calculateWorkingDays(),
           notes: $('#notes').value.trim(),
           submittedAt: new Date().toISOString()
         };
@@ -672,16 +539,13 @@
         try {
           const controller = new AbortController();
           const t = setTimeout(() => controller.abort(), 15000);
-
           const res = await fetch(submitWebhookURL, {
             method:'POST',
             body:JSON.stringify(payload),
             headers:{ 'Content-Type':'application/json' },
             signal:controller.signal
           });
-
           clearTimeout(t);
-
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
           showMsg(formMsg, 'Request submitted successfully. Your manager will review it shortly.', 'ok');
