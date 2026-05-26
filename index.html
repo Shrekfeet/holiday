@@ -451,9 +451,9 @@
       };
 
       const eventColour = (type) => {
-        if (type === 'Annual Leave') return '#2563eb';
+        if (type === 'Annual Leave') return '#b7edc1';
         if (type === 'TOIL') return '#7c3aed';
-        if (type === 'Sick Leave') return '#800101';
+        if (type === 'Sick Leave') return '#faf3a5';
         if (type === 'Bank Holiday') return '#54851c';
         return '#f97316';
       };
@@ -465,6 +465,7 @@
         allDay: true,
         backgroundColor: eventColour(event.type),
         borderColor: eventColour(event.type),
+        textColor: eventTextColour(event.type),
         extendedProps: {
           name: event.name,
           team: event.team || 'Company-wide',
@@ -472,6 +473,14 @@
           status: event.status || 'Approved'
         }
       });
+
+      const eventTextColour = (type) => {
+        if (type === 'Annual Leave') return '#ffffff';
+        if (type === 'TOIL') return '#ffffff';
+        if (type === 'Sick Leave') return '#ffffff';
+        if (type === 'Bank Holiday') return '#ffffff';
+        return '#111827';
+      };
 
       const populateTeamFilter = (events) => {
         teamFilter.innerHTML = '<option value="all">All teams</option>';
