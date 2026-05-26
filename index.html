@@ -292,15 +292,22 @@
 
   <script>
     window.addEventListener('DOMContentLoaded', function(){
-      const technicians = [
+      // Make.com endpoints. Replace these with your live webhook URLs.
+      const submitWebhookURL = 'https://hook.eu2.make.com/1g9bupgr66tiw5bejf7jok99hk873in7';
+      const calendarFeedURL = 'https://hook.eu2.make.com/qrixvwo15cjwnje1hccsfarn8yfzn3qx';
+      const balanceLookupURL = 'https://hook.eu2.make.com/YOUR_BALANCE_LOOKUP_WEBHOOK';
+      const technicianFeedURL = 'https://hook.eu2.make.com/YOUR_TECHNICIAN_FEED_WEBHOOK';
+
+      // UK bank holiday region. Options from GOV.UK are:
+      // england-and-wales, scotland, northern-ireland
+      const bankHolidayDivision = 'england-and-wales';
+
+      // Fallback only. Once technicianFeedURL is connected, real monday data will be used instead.
+      const fallbackTechnicians = [
         { name: 'Alex Brown', email: 'alex@company.com', team: 'Workshop' },
         { name: 'Jamie Smith', email: 'jamie@company.com', team: 'Installations' },
         { name: 'Morgan Lee', email: 'morgan@company.com', team: 'Workshop' }
       ];
-
-      const submitWebhookURL = 'https://hook.eu2.make.com/YOUR_LEAVE_REQUEST_WEBHOOK';
-      const calendarFeedURL = 'https://hook.eu2.make.com/YOUR_PUBLIC_CALENDAR_FEED_WEBHOOK';
-      const balanceLookupURL = 'https://hook.eu2.make.com/YOUR_BALANCE_LOOKUP_WEBHOOK';
 
       const $ = (sel, root=document) => root.querySelector(sel);
       const form = $('#leaveForm');
@@ -318,7 +325,10 @@
       const teamFilter = $('#teamFilter');
       const typeFilter = $('#typeFilter');
 
+      let technicians = [];
       let allEvents = [];
+      let bankHolidayEvents = [];
+      let bankHolidayDates = new Set();
       let calendar;
 
       const showMsg = (el, text, type='') => {
@@ -340,6 +350,18 @@
         return toISODate(d);
       };
 
+      const sameDateRange = () => startDateInput.value && endDateInput.value && startDateInput.value === endDateInput.value;
+      const isHalfDay = () => durationTypeInput.value.includes('Half Day');
+
+      const durationIsValid = () => {
+        if (isHalfDay() && startDateInput.value && endDateInput.value && !sameDateRange()) {
+          showMsg(formMsg, 'Half-day requests must have the same start and end date. For multiple days, choose Full Day.', 'warn');
+          return false;
+        }
+        if (formMsg.className.includes('msg--warn')) showMsg(formMsg, '', '');
+        return true;
+      };
+
       const calculateWorkingDays = () => {
         if (!startDateInput.value || !endDateInput.value) {
           workingDaysInput.value = '';
@@ -357,12 +379,18 @@
         const cursor = new Date(start);
         while (cursor <= end) {
           const day = cursor.getDay();
-          if (day !== 0 && day !== 6) count++;
+          const iso = toISODate(cursor);
+          const isWeekend = day === 0 || day === 6;
+          const isBankHoliday = bankHolidayDates.has(iso);
+          if (!isWeekend && !isBankHoliday) count++;
           cursor.setDate(cursor.getDate() + 1);
         }
 
-        if (durationTypeInput.value.includes('Half Day') && startDateInput.value === endDateInput.value) {
-          count = 0.5;
+        if (isHalfDay() && sameDateRange()) {
+          const selectedDay = new Date(`${startDateInput.value}T00:00:00`).getDay();
+          const isWeekend = selectedDay === 0 || selectedDay === 6;
+          const isBankHoliday = bankHolidayDates.has(startDateInput.value);
+          count = isWeekend || isBankHoliday ? 0 : 0.5;
         }
 
         workingDaysInput.value = count || '';
@@ -375,12 +403,15 @@
         const typeOk = leaveTypeInput.value.length > 0;
         const startOk = Boolean(startDateInput.value);
         const endOk = Boolean(endDateInput.value);
+        const durationOk = durationIsValid();
         const days = calculateWorkingDays();
-        submitBtn.disabled = !(nameOk && emailOk && typeOk && startOk && endOk && days > 0);
+        submitBtn.disabled = !(nameOk && emailOk && typeOk && startOk && endOk && durationOk && days > 0);
       };
 
-      const populateTechnicianDropdown = () => {
-        technicians
+      const populateTechnicianDropdown = (people) => {
+        technicianInput.innerHTML = '<option value="">-- Select your name --</option>';
+        people
+          .filter(tech => tech.name && tech.email)
           .sort((a, b) => a.name.localeCompare(b.name))
           .forEach(tech => {
             const option = document.createElement('option');
@@ -390,6 +421,26 @@
             option.dataset.team = tech.team || '';
             technicianInput.appendChild(option);
           });
+      };
+
+      const loadTechnicians = async () => {
+        if (technicianFeedURL.includes('YOUR_TECHNICIAN_FEED_WEBHOOK')) {
+          technicians = fallbackTechnicians;
+          populateTechnicianDropdown(technicians);
+          return;
+        }
+
+        try {
+          const res = await fetch(technicianFeedURL, { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          technicians = await res.json();
+          console.log('Technicians loaded:', technicians);
+          populateTechnicianDropdown(technicians);
+        } catch (error) {
+          console.error('Technician feed failed. Using fallback technicians:', error);
+          technicians = fallbackTechnicians;
+          populateTechnicianDropdown(technicians);
+        }
       };
 
       const updateSelectedTechnician = () => {
@@ -403,11 +454,12 @@
         if (type === 'Annual Leave') return '#2563eb';
         if (type === 'TOIL') return '#7c3aed';
         if (type === 'Sick Leave') return '#800101';
+        if (type === 'Bank Holiday') return '#54851c';
         return '#f97316';
       };
 
       const normaliseEvent = (event) => ({
-        title: `${event.name} — ${event.type}`,
+        title: event.type === 'Bank Holiday' ? event.name : `${event.name} — ${event.type}`,
         start: event.start,
         end: event.end ? addDays(event.end, 1) : undefined,
         allDay: true,
@@ -415,7 +467,7 @@
         borderColor: eventColour(event.type),
         extendedProps: {
           name: event.name,
-          team: event.team || 'Unassigned',
+          team: event.team || 'Company-wide',
           type: event.type,
           status: event.status || 'Approved'
         }
@@ -423,7 +475,7 @@
 
       const populateTeamFilter = (events) => {
         teamFilter.innerHTML = '<option value="all">All teams</option>';
-        const teams = [...new Set(events.map(event => event.team).filter(Boolean))].sort();
+        const teams = [...new Set(events.map(event => event.team).filter(Boolean).filter(team => team !== 'Company-wide'))].sort();
         teams.forEach(team => {
           const option = document.createElement('option');
           option.value = team;
@@ -436,12 +488,42 @@
         const selectedTeam = teamFilter.value;
         const selectedType = typeFilter.value;
         const filtered = allEvents.filter(event => {
-          const teamOk = selectedTeam === 'all' || event.team === selectedTeam;
+          const isBankHolidayEvent = event.type === 'Bank Holiday';
+          const teamOk = isBankHolidayEvent || selectedTeam === 'all' || event.team === selectedTeam;
           const typeOk = selectedType === 'all' || event.type === selectedType;
           return teamOk && typeOk;
         });
         calendar.removeAllEvents();
         calendar.addEventSource(filtered.map(normaliseEvent));
+      };
+
+      const loadBankHolidays = async () => {
+        try {
+          const res = await fetch('https://www.gov.uk/bank-holidays.json', { cache: 'no-store' });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const events = data?.[bankHolidayDivision]?.events || [];
+          const currentYear = new Date().getFullYear();
+          const allowedYears = new Set([currentYear - 1, currentYear, currentYear + 1, currentYear + 2]);
+
+          bankHolidayEvents = events
+            .filter(event => allowedYears.has(Number(event.date.slice(0, 4))))
+            .map(event => ({
+              name: event.title,
+              team: 'Company-wide',
+              type: 'Bank Holiday',
+              start: event.date,
+              end: event.date,
+              status: 'Public Holiday'
+            }));
+
+          bankHolidayDates = new Set(bankHolidayEvents.map(event => event.start));
+          console.log('Bank holidays loaded:', bankHolidayEvents);
+        } catch (error) {
+          console.error('Bank holiday feed failed:', error);
+          bankHolidayEvents = [];
+          bankHolidayDates = new Set();
+        }
       };
 
       const loadCalendar = async () => {
@@ -465,27 +547,26 @@ ${props.status}`;
         });
         calendar.render();
 
+        let leaveEvents = [];
         try {
           const res = await fetch(calendarFeedURL, { cache: 'no-store' });
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          allEvents = await res.json();
-          console.log('Calendar feed loaded:', allEvents);
-          populateTeamFilter(allEvents);
-          applyCalendarFilters();
+          leaveEvents = await res.json();
+          console.log('Leave feed loaded:', leaveEvents);
         } catch (error) {
-          console.error('Calendar feed failed:', error);
-          allEvents = [];
-          populateTeamFilter(allEvents);
-          applyCalendarFilters();
-          alert('Calendar feed failed to load. Open the browser console for details.');
+          console.error('Leave calendar feed failed:', error);
+          leaveEvents = [];
         }
+
+        allEvents = [...leaveEvents, ...bankHolidayEvents];
+        populateTeamFilter(allEvents);
+        applyCalendarFilters();
       };
 
       const lookupBalance = async () => {
         const name = technicianInput.value.trim();
         const email = emailInput.value.trim();
         if (!name && !email) return;
-
         if (balanceLookupURL.includes('YOUR_BALANCE_LOOKUP_WEBHOOK')) return;
 
         try {
@@ -496,6 +577,7 @@ ${props.status}`;
           annualRemaining.textContent = balance.annualRemaining ?? '—';
           toilRemaining.textContent = balance.toilRemaining ?? '—';
         } catch (error) {
+          console.error('Balance lookup failed:', error);
           annualRemaining.textContent = '—';
           toilRemaining.textContent = '—';
         }
@@ -517,9 +599,22 @@ ${props.status}`;
         toggleSubmitEnabled();
       });
 
+      durationTypeInput.addEventListener('change', () => {
+        if (isHalfDay() && startDateInput.value && endDateInput.value && !sameDateRange()) {
+          endDateInput.value = startDateInput.value;
+        }
+        toggleSubmitEnabled();
+      });
+
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         showMsg(formMsg, '', '');
+
+        if (!durationIsValid()) {
+          toggleSubmitEnabled();
+          return;
+        }
+
         submitBtn.disabled = true;
 
         const selectedTechnician = technicianInput.selectedOptions[0];
@@ -561,9 +656,12 @@ ${props.status}`;
         }
       });
 
-      populateTechnicianDropdown();
-      loadCalendar();
-      toggleSubmitEnabled();
+      (async function init(){
+        await loadBankHolidays();
+        await loadTechnicians();
+        await loadCalendar();
+        toggleSubmitEnabled();
+      })();
     });
   </script>
 </body>
