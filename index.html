@@ -520,6 +520,11 @@
         return '#f97316';
       };
 
+      const eventTextColour = (type) => {
+        if (type === 'Annual Leave') return '#1f2937';
+        return '#ffffff';
+      };
+
       const eventLucideIcon = (type) => {
         if (type === 'Annual Leave') return 'palm-tree';
         if (type === 'TOIL') return 'timer-reset';
@@ -538,6 +543,7 @@
         allDay: true,
         backgroundColor: eventColour(event.type),
         borderColor: eventColour(event.type),
+        textColor: eventTextColour(event.type),
         extendedProps: {
           name: event.name,
           team: event.team || 'Company-wide',
