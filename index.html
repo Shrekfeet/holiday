@@ -567,7 +567,8 @@
           name: event.name,
           team: event.team || 'Company-wide',
           type: event.type,
-          status: event.status || 'Approved'
+          status: event.status || 'Approved',
+          duration: event.duration || 'Full Day'
         }
       });
 
@@ -633,6 +634,13 @@
         calendar = new FullCalendar.Calendar(calendarEl, {
           eventContent: function(arg) {
             const icon = eventLucideIcon(arg.event.extendedProps.type);
+            const duration = arg.event.extendedProps.duration || 'Full Day';
+          
+            const halfDayLabel = duration === 'Half Day AM'
+              ? 'AM'
+              : duration === 'Half Day PM'
+                ? 'PM'
+                : '';
           
             return {
               html: `
@@ -644,7 +652,7 @@
                   overflow:hidden;
                 ">
                   <i data-lucide="${icon}" style="width:12px;height:12px;flex-shrink:0;stroke:currentColor;"></i>
-                  <span>${arg.event.title}</span>
+                  <span>${halfDayLabel ? halfDayLabel + ' · ' : ''}${arg.event.title}</span>
                 </div>
               `
             };
