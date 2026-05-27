@@ -63,7 +63,7 @@
       max-width:160px;
       width:50%;
       min-width:140px;
-      margin:8px auto 6px;
+      margin:8px auto 16px;
       height:auto;
       filter:drop-shadow(var(--shadow-soft));
     }
@@ -129,6 +129,32 @@
     input, select{height:50px;}
     textarea{min-height:96px; resize:vertical;}
     input:focus, select:focus, textarea:focus{outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(118,183,41,.25); background:#fff;}
+
+    select{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    select.has-value{
+      color:var(--text);
+      font-size:16px;
+    }
+
+    input[type="date"]{
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    input[type="date"].has-value{
+      color:var(--text);
+      font-size:16px;
+    }
+
+    input::placeholder,
+    textarea::placeholder{
+      color:#9aa3af;
+      font-size:12px;
+    }
 
     .btn{
       margin-top:16px;
@@ -235,9 +261,9 @@
                 </select>
               </div>
               <div>
-                <label for="workingDays">Estimated Working Days</label>
+                <label for="workingDays">Est. Working Days</label>
                 <input id="workingDays" name="workingDays" type="number" min="0.5" step="0.5" readonly />
-                <div class="help">Auto-estimate excludes Saturdays and Sundays.</div>
+                <div class="help">Auto-estimate excludes Saturdays, Sundays and existing leave.</div>
               </div>
             </div>
 
@@ -632,10 +658,44 @@ ${props.status}`;
       teamFilter.addEventListener('change', applyCalendarFilters);
       typeFilter.addEventListener('change', applyCalendarFilters);
 
+      document.querySelectorAll('select').forEach(select => {
+        const updateSelectStyle = () => {
+          if (select.value) {
+            select.classList.add('has-value');
+          } else {
+            select.classList.remove('has-value');
+          }
+        };
+
+        select.addEventListener('change', updateSelectStyle);
+        updateSelectStyle();
+      });
+
+      document.querySelectorAll('input[type="date"]').forEach(input => {
+        const updateDateStyle = () => {
+          if (input.value) {
+            input.classList.add('has-value');
+          } else {
+            input.classList.remove('has-value');
+          }
+        };
+
+        input.addEventListener('change', updateDateStyle);
+        updateDateStyle();
+      });
+
       startDateInput.addEventListener('change', () => {
         if (startDateInput.value && (!endDateInput.value || endDateInput.value < startDateInput.value)) {
           endDateInput.value = startDateInput.value;
+          endDateInput.classList.add('has-value');
         }
+
+        if (startDateInput.value) {
+          startDateInput.classList.add('has-value');
+        } else {
+          startDateInput.classList.remove('has-value');
+        }
+
         toggleSubmitEnabled();
       });
 
