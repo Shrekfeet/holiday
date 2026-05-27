@@ -17,6 +17,10 @@
       --green-700:#406516;
       --mint:#eaf6db;
       --teatree:#b7edc1;
+      --paleyellow:#fff0b5;
+      --palered:#fee2e2;
+      --paleblue:#dbeafe;
+      --mutegrey:#e5e7eb;
       --red:#800101;
       --blue:#2563eb;
       --purple:#7c3aed;
@@ -194,7 +198,10 @@
     .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
     .dot--annual{background:var(--teatree);}
     .dot--toil{background:var(--purple);}
-    .dot--sick{background:var(--red);}
+    .dot--sick{background:var(--paleyellow);}
+    .dot--compassionate{background:var(--palered);}
+    .dot--training{background:var(--paleblue);}
+    .dot--unpaid{background:var(--mutegrey);}
     .dot--other{background:var(--orange);}
 
     .privacy-note{margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--mint); color:var(--green-700); font-size:13px; line-height:1.45;}
@@ -306,8 +313,9 @@
 
         <div class="legend">
           <span><i class="dot dot--annual"></i> Annual Leave</span>
-          <span><i class="dot dot--toil"></i> TOIL</span>
           <span><i class="dot dot--sick"></i> Sick Leave</span>
+          <span><i class="dot dot--toil"></i> TOIL</span>
+          <span><i class="dot dot--compassionate"></i> Compassionate</span>
           <span><i class="dot dot--other"></i> Other</span>
         </div>
 
@@ -515,13 +523,20 @@
       const eventColour = (type) => {
         if (type === 'Annual Leave') return 'var(--teatree)';
         if (type === 'TOIL') return '#7c3aed';
-        if (type === 'Sick Leave') return '#800101';
+        if (type === 'Sick Leave') return 'var(--paleyellow)';
         if (type === 'Bank Holiday') return '#54851c';
+        if (type === 'Compassionate Leave') return 'var(--palered)';
+        if (type === 'Training') return 'var(--paleblue)';
+        if (type === 'Unpaid Leave') return 'var(--mutegrey)';
         return '#f97316';
       };
 
       const eventTextColour = (type) => {
         if (type === 'Annual Leave') return '#1f2937';
+        if (type === 'Sick Leave') return '#92400e';
+        if (type === 'Compassionate Leave') return '#991b1b';
+        if (type === 'Training') return '#1d4ed8';
+        if (type === 'Unpaid Leave') return '#374151';
         return '#ffffff';
       };
 
