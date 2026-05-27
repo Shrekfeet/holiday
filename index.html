@@ -21,6 +21,7 @@
       --palered:#fee2e2;
       --paleblue:#dbeafe;
       --mutegrey:#e5e7eb;
+      --lavender:#ede9fe;
       --red:#800101;
       --blue:#2563eb;
       --purple:#7c3aed;
@@ -197,7 +198,7 @@
     .legend span{display:inline-flex; align-items:center; gap:6px;}
     .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
     .dot--annual{background:var(--teatree);}
-    .dot--toil{background:var(--purple);}
+    .dot--toil{background:var(--lavender);}
     .dot--sick{background:var(--paleyellow);}
     .dot--compassionate{background:var(--palered);}
     .dot--training{background:var(--paleblue);}
@@ -316,6 +317,8 @@
           <span><i class="dot dot--sick"></i> Sick Leave</span>
           <span><i class="dot dot--toil"></i> TOIL</span>
           <span><i class="dot dot--compassionate"></i> Compassionate</span>
+          <span><i class="dot dot--training"></i> Training</span>
+          <span><i class="dot dot--unpaid"></i> Unpaid Leave</span>
           <span><i class="dot dot--other"></i> Other</span>
         </div>
 
@@ -522,7 +525,7 @@
 
       const eventColour = (type) => {
         if (type === 'Annual Leave') return 'var(--teatree)';
-        if (type === 'TOIL') return '#7c3aed';
+        if (type === 'TOIL') return 'var(--lavender)';
         if (type === 'Sick Leave') return 'var(--paleyellow)';
         if (type === 'Bank Holiday') return '#54851c';
         if (type === 'Compassionate Leave') return 'var(--palered)';
@@ -537,6 +540,7 @@
         if (type === 'Compassionate Leave') return '#991b1b';
         if (type === 'Training') return '#1d4ed8';
         if (type === 'Unpaid Leave') return '#374151';
+        if (type === 'TOIL') return '#5b21b6';
         return '#ffffff';
       };
 
