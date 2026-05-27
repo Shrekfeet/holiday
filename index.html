@@ -15,6 +15,7 @@
       --green-600:#54851c;
       --green-700:#406516;
       --mint:#eaf6db;
+      --teatree:#b7edc1;
       --red:#800101;
       --blue:#2563eb;
       --purple:#7c3aed;
@@ -164,9 +165,9 @@
     .legend{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; font-size:12px; color:var(--muted);}
     .legend span{display:inline-flex; align-items:center; gap:6px;}
     .dot{width:10px; height:10px; border-radius:50%; display:inline-block;}
-    .dot--annual{background:#b7edc1;}
+    .dot--annual{background:var(--teatree);}
     .dot--toil{background:var(--purple);}
-    .dot--sick{background:#faf3a5;}
+    .dot--sick{background:var(--red);}
     .dot--other{background:var(--orange);}
 
     .privacy-note{margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--mint); color:var(--green-700); font-size:13px; line-height:1.45;}
@@ -329,6 +330,7 @@
       let allEvents = [];
       let bankHolidayEvents = [];
       let bankHolidayDates = new Set();
+      let bookedLeaveDatesByEmployee = new Map();
       let calendar;
 
       const showMsg = (el, text, type='') => {
@@ -352,6 +354,37 @@
 
       const sameDateRange = () => startDateInput.value && endDateInput.value && startDateInput.value === endDateInput.value;
       const isHalfDay = () => durationTypeInput.value.includes('Half Day');
+
+      const buildInclusiveDateList = (startISO, endISO) => {
+        const dates = [];
+        if (!startISO || !endISO) return dates;
+        const cursor = new Date(`${startISO}T00:00:00`);
+        const end = new Date(`${endISO}T00:00:00`);
+        while (cursor <= end) {
+          dates.push(toISODate(cursor));
+          cursor.setDate(cursor.getDate() + 1);
+        }
+        return dates;
+      };
+
+      const rebuildBookedLeaveLookup = (leaveEvents) => {
+        bookedLeaveDatesByEmployee = new Map();
+        leaveEvents
+          .filter(event => event.name && event.start && event.end && event.status !== 'Rejected')
+          .forEach(event => {
+            if (!bookedLeaveDatesByEmployee.has(event.name)) {
+              bookedLeaveDatesByEmployee.set(event.name, new Set());
+            }
+            const employeeDates = bookedLeaveDatesByEmployee.get(event.name);
+            buildInclusiveDateList(event.start, event.end).forEach(date => employeeDates.add(date));
+          });
+      };
+
+      const isAlreadyBookedForSelectedEmployee = (isoDate) => {
+        const selectedName = technicianInput.value.trim();
+        if (!selectedName) return false;
+        return bookedLeaveDatesByEmployee.get(selectedName)?.has(isoDate) || false;
+      };
 
       const durationIsValid = () => {
         if (isHalfDay() && startDateInput.value && endDateInput.value && !sameDateRange()) {
@@ -382,7 +415,8 @@
           const iso = toISODate(cursor);
           const isWeekend = day === 0 || day === 6;
           const isBankHoliday = bankHolidayDates.has(iso);
-          if (!isWeekend && !isBankHoliday) count++;
+          const isAlreadyBooked = isAlreadyBookedForSelectedEmployee(iso);
+          if (!isWeekend && !isBankHoliday && !isAlreadyBooked) count++;
           cursor.setDate(cursor.getDate() + 1);
         }
 
@@ -390,7 +424,8 @@
           const selectedDay = new Date(`${startDateInput.value}T00:00:00`).getDay();
           const isWeekend = selectedDay === 0 || selectedDay === 6;
           const isBankHoliday = bankHolidayDates.has(startDateInput.value);
-          count = isWeekend || isBankHoliday ? 0 : 0.5;
+          const isAlreadyBooked = isAlreadyBookedForSelectedEmployee(startDateInput.value);
+          count = isWeekend || isBankHoliday || isAlreadyBooked ? 0 : 0.5;
         }
 
         workingDaysInput.value = count || '';
@@ -451,9 +486,9 @@
       };
 
       const eventColour = (type) => {
-        if (type === 'Annual Leave') return '#b7edc1';
+        if (type === 'Annual Leave') return var(--teatree);
         if (type === 'TOIL') return '#7c3aed';
-        if (type === 'Sick Leave') return '#faf3a5';
+        if (type === 'Sick Leave') return '#800101';
         if (type === 'Bank Holiday') return '#54851c';
         return '#f97316';
       };
@@ -465,7 +500,6 @@
         allDay: true,
         backgroundColor: eventColour(event.type),
         borderColor: eventColour(event.type),
-        textColor: eventTextColour(event.type),
         extendedProps: {
           name: event.name,
           team: event.team || 'Company-wide',
@@ -473,14 +507,6 @@
           status: event.status || 'Approved'
         }
       });
-
-      const eventTextColour = (type) => {
-        if (type === 'Annual Leave') return '#ffffff';
-        if (type === 'TOIL') return '#ffffff';
-        if (type === 'Sick Leave') return '#ffffff';
-        if (type === 'Bank Holiday') return '#ffffff';
-        return '#111827';
-      };
 
       const populateTeamFilter = (events) => {
         teamFilter.innerHTML = '<option value="all">All teams</option>';
@@ -562,9 +588,11 @@ ${props.status}`;
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           leaveEvents = await res.json();
           console.log('Leave feed loaded:', leaveEvents);
+          rebuildBookedLeaveLookup(leaveEvents);
         } catch (error) {
           console.error('Leave calendar feed failed:', error);
           leaveEvents = [];
+          rebuildBookedLeaveLookup(leaveEvents);
         }
 
         allEvents = [...leaveEvents, ...bankHolidayEvents];
@@ -597,7 +625,10 @@ ${props.status}`;
         input.addEventListener('change', toggleSubmitEnabled);
       });
 
-      technicianInput.addEventListener('change', updateSelectedTechnician);
+      technicianInput.addEventListener('change', () => {
+        updateSelectedTechnician();
+        calculateWorkingDays();
+      });
       teamFilter.addEventListener('change', applyCalendarFilters);
       typeFilter.addEventListener('change', applyCalendarFilters);
 
