@@ -8,6 +8,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Domine:wght@400;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
     :root{
@@ -519,8 +520,19 @@
         return '#f97316';
       };
 
+      const eventLucideIcon = (type) => {
+        if (type === 'Annual Leave') return 'palm-tree';
+        if (type === 'TOIL') return 'timer-reset';
+        if (type === 'Sick Leave') return 'heart-pulse';
+        if (type === 'Training') return 'graduation-cap';
+        if (type === 'Compassionate Leave') return 'hand-heart';
+        if (type === 'Unpaid Leave') return 'wallet';
+        if (type === 'Bank Holiday') return 'flag';
+        return 'calendar-days';
+      };
+
       const normaliseEvent = (event) => ({
-        title: event.type === 'Bank Holiday' ? event.name : `${event.name} — ${event.type}`,
+        title: event.name,
         start: event.start,
         end: event.end ? addDays(event.end, 1) : undefined,
         allDay: true,
@@ -590,6 +602,24 @@
       const loadCalendar = async () => {
         const calendarEl = $('#calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
+          eventContent: function(arg) {
+            const icon = eventLucideIcon(arg.event.extendedProps.type);
+          
+            return {
+              html: `
+                <div style="
+                  display:flex;
+                  align-items:center;
+                  gap:4px;
+                  font-size:12px;
+                  overflow:hidden;
+                ">
+                  <i data-lucide="${icon}" style="width:12px;height:12px;"></i>
+                  <span>${arg.event.title}</span>
+                </div>
+              `
+            };
+          },
           initialView: 'dayGridMonth',
           height: 'auto',
           firstDay: 1,
@@ -604,6 +634,7 @@
 ${props.type}
 ${props.team}
 ${props.status}`;
+            lucide.createIcons();
           }
         });
         calendar.render();
